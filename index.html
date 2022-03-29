@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" dir="">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Chatty</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css" rel="stylesheet" >
+    <link href="./assets/css/main.css" rel="stylesheet" />
+    
+</head>
+
+<body>
+    <div class="chat-sidebar-container" data-sidebar-container="chat" style="height:100%">
+        <div class="chat-content-wrap" data-sidebar-content="chat">
+            <div class="chat-content" data-suppress-scroll-x="true" style="height:100%" id="chat">
+            </div>
+            <div class="pl-3 pr-3 pt-3 pb-3 box-shadow-1 chat-input-area">
+                <div class="row">
+                    <div class="col-xl-2 col-md-12 form-group">
+                        <label for="epi_tag">Episode Tag</label>
+                        <input type="text" class="form-control" id="epi_tag" value="" />
+                    </div>
+                    <div class="col-xl-2 col-md-12 form-group">
+                        <label for="left_star">Left</label>
+                        <input type="text" class="form-control" id="left_star" value="" />
+                    </div>
+                    <div class="col-xl-2 col-md-12 form-group">
+                        <label for="right_star">Right</label>
+                        <input type="text" class="form-control" id="right_star" value="" />
+                    </div>
+                    <div class="col-xl-2 col-md-12 form-group">
+                        <label for="start_side">Start Side</label>
+                        <select type="text" class="form-control" id="start_side">
+                            <option value="1">Left</option>
+                            <option value="0">Right</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-2 col-md-12  form-group align-self-end">
+                        <button class="btn btn-rounded btn-primary mr-2" id="start_over_btn">Start Over</button>
+                        <button class="btn btn-rounded btn-primary mr-2" id="json_btn">Export JSON</button>
+                    </div>
+                </div>
+                <div class="row form-group " style="min-height: 100px;" id="setting_pictures" onclick="setPicturePlate()">
+                    <label>Setting Pictures <i class="fa fa-retweet"></i></label>
+                </div>
+                <div class="row">
+                    <div class="col-xl-8 col-md-12  form-group">
+                        <textarea class="form-control" id="json_output" placeholder="JSON" cols="30" rows="3"></textarea>
+                    </div>
+                    <div class="col-xl-2 col-md-12  form-group align-self-end">
+                        <button class="btn btn-icon btn-rounded btn-success mr-2" id="load_json_btn">Load JSON</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end of main-content -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        function initPage() {
+            $("#chat").empty();
+            let isLeftStart = $("#start_side").val();
+            if(isLeftStart==1) {
+                let leftStar = $("#left_star").val().split(",");
+                $("#chat").append(getLeft(leftStar[0], 'new line', $('#epi_tag').val()));
+            }else {
+                let rightStar = $("#right_star").val().split(",");
+                $("#chat").append(getRight(rightStar[0], 'new line', $('#epi_tag').val()));
+            }
+        }
+
+        var prevStar = '';
+        $(document).on("focus", ".talk-star", function(event) {
+            prevStar = $(this).val();
+            console.log('focus:'+prevStar);
+        })
+        // .change(function(event){
+        //     console.log('change:'+$(this).val());
+        //     $(this).closest('.chat').find('img').removeClass(prevStar);
+        //     $(this).closest('.chat').find('img').addClass($(this).val());
+        //     // $(this).closest('.chat').find('img').attr('src', `./img/${$(folder).val()}/${$(this).val()}.png`);
+        // })
+
+        $(document).on("change", ".talk-star", function(event) {
+            console.log('change:'+$(this).val());
+            let changeStar = $(this).val();
+            $(this).closest('.chat').find('img').removeClass(prevStar);
+            $(this).closest('.chat').find('img').addClass(changeStar);
+            prevStar = '';
+
+            $(`#${id}.card-img`).prop('src');
+            $(`.avatar-md.${id}`).each((i, e)=>$(e).prop('src', value));
+        });
+
+        $(document).on("click", ".avatar-md, .talk-del-btn", function(event) {
+            if(confirm('do you want to remove this talk?')){
+                $(this).closest('.chat-wrapper').remove();
+            }
+        });
+
+        $(document).on("click", ".talk-area", function(event) {
+            $(this).prev('.talk-edit').removeClass('d-none');
+        });
+
+        $(document).on("click", ".talk-edit-btn", function(event) {
+            let message = $(this).closest('.message');
+            message.find('.talk-area').html(putCssOnTalk(message.find('textarea').val().trim()));
+            message.find('.talk-edit').addClass('d-none');
+            addTalk()
+        });
+
+        function capitalize(word) {
+            let lower = str.toLowerCase();
+            return str.charAt(0).toUpperCase() + lower.slice(1);
+        }
+
+        function setPicturePlate() {
+            let nameList = [].concat($("#left_star").val().split(","), $("#right_star").val().split(","));
+            nameList = nameList.map(e => e.trim().toLowerCase());
+
+            $(".card-img").filter((i, e)=>{ return !nameList.includes($(e).attr('id'))}).each(
+                (i, e) => {
+                    if(confirm($(e).closest('.pic-col').find('h5').text() + '의 사진을 삭제할까요?')) {
+                        $(e).closest('.pic-col').remove();
+                    }
+                });
+
+
+            let html = ``;
+            nameList.forEach((name)=>{
+                if(isEmpty(name) || $(".card-img").filter((i, e)=>{return $(e).attr('id')===name.toLowerCase()}).length>0) return;
+
+                html += `
+                        <div class="col-xl-1 col-lg-4 col-6 p-2 bg-ligth-green pic-col">
+                            <div class="card text-white o-hidden mb-2">
+                                <img class="card-img" src="./assets/img/user.png" onerror="this.src='./assets/img/user.png'" id="${name}"/>
+                                <div class="card-img-overlay">
+                                    <div class="text-center">
+                                        <h5 class="card-title mb-1 text-white">${capitalize(name)}</h5>
+                                        <div class="separator border-top mb-2"></div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <button class="btn btn-icon btn-rounded btn-outline-light text-white" onclick="$(this).next().click()"><i class="fa fa-camera"></i></button>
+                                        <input type="file" accept="image/*" onchange="makeThumbNail('${name}', $(this).get(0).files[0])" hidden />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                `;  
+            });
+            $('#setting_pictures').append(html);
+        }
+
+        $("#left_star, #right_star").change(setPicturePlate);
+
+        function readFileAsURL(file) {
+            return new Promise(function(resolve, reject) {
+                let fr = new FileReader();
+                fr.onload = function() {resolve(fr.result);};
+                fr.onerror = function() {reject(fr);};
+                fr.readAsDataURL(file);
+            });
+        }
+
+        function makeThumbNail(id, file) {
+            var filename = file.name;
+            readFileAsURL(file).then((value) => {
+                $(`#${id}.card-img`).prop('src', value);
+                $(`.avatar-md.${id}`).each((i, e)=>$(e).prop('src', value));
+            });
+        }
+
+        $(document).on("click", "#start_over_btn", function(event) {
+            initPage();
+        });
+
+        $(document).on("click", "#json_btn", function(event) {
+            let jsonObject = {
+                epi_tag : $("#epi_tag").val(),
+                left : $("#left_star").val(),
+                right : $("#right_star").val(),
+                firstDir : ($("#start_side").val()==1)?"left":'right',
+            };
+
+            let chatArray = [];
+            $('.chat').each((i, v)=> {
+                let obj = {
+                    name: $(v).find('.talk-star').val(),
+                    dir: (typeof $(v).find('.chat-right')[0]==='undefined')?'left':'right',
+                    talk: $(v).find('textarea').val()
+                }
+                chatArray.push(obj);
+            });
+
+            jsonObject.chat = chatArray;
+            $("#json_output").val(JSON.stringify(jsonObject));
+        });
+
+        $(document).on("click", "#load_json_btn", function(event) {
+            let data = JSON.parse($("#json_output").val());
+
+            let html = '';
+            data.chat.forEach((c)=>{
+                if(c.dir==='left') {
+                    html += getLeft(capitalize(c.name), c.talk, (html==='')?data.epi_tag:'');
+                }else {
+                    html += getRight(capitalize(c.name), c.talk, (html==='')?data.epi_tag:'');
+                }
+            });
+
+            $("#chat").html(html);
+
+            $("#epi_tag").val(data.epi_tag);
+            $("#left_star").val(data.left);
+            $("#right_star").val(data.right);
+            $("#start_side").val((data.firstDir==='left')?'1':'0');
+
+        });
+
+        let dragSource;
+
+        function drag(element, event) {
+            dragSource = element;
+            event.dataTransfer.setData('text/html', element.innerHTML);
+        }
+
+        function drop(target, event) {
+            event.preventDefault();
+            let el = '<div class="chat-wrapper" draggable="true" ondragstart="drag(this, event)" ondrop="drop(this, event)" ondragover="allowDrop(event)">'
+                    + event.dataTransfer.getData('text/html')
+                    + '</div>'
+            $(target).after(el);
+            dragSource.remove();
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function addTalk() {
+            console.log('add talk')
+            let lastChat = $("#chat .chat").children().last();
+            if(lastChat.hasClass('chat-left')) {
+                let rightStar = $("#right_star").val().split(",");
+                $("#chat").append(getRight(rightStar[0], 'new line', ''));
+            }else {
+                let leftStar = $("#left_star").val().split(",");
+                $("#chat").append(getLeft(leftStar[0], 'new line', ''));
+            }
+        }
+
+        function getLeft(name, talk, tag='') {
+            tagHtml = '<span>&nbsp;</span>';
+            if(tag != '') tagHtml = `<span class="text-small text-muted">${tag}</span>`;
+
+            let whoOption = ``;
+            $('#left_star').val().split(",").forEach((s)=>{
+                s = s.trim();
+                if(isNotEmpty(s)) whoOption += `<option value="${s.toLowerCase()}">${s}</option>`;
+            });
+            if(isEmpty(whoOption) && isNotEmpty(name)) {
+                whoOption = `<option value="${name.toLowerCase()}">${capitalize(name)}</option>`;
+            }
+
+            return `
+            <div class="chat-wrapper" draggable="true" ondragstart="drag(this, event)" ondrop="drop(this, event)" ondragover="allowDrop(event)">
+                <div class="mb-4 chat user">
+                    <div class="row chat-left">
+                        <div class="col-2 p-0">
+                            <img class="avatar-md rounded-circle mr-3 ${name.toLowerCase()}" src="" onerror="this.src='./assets/img/user.png'" />
+                        </div>
+                        <div class="col-10">
+                            <div class="message flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <select class="form-control border-0 p-0 text-title text-16 font-weight-600 w-50 talk-star">
+                                        ${whoOption}
+                                    </select>
+                                    ${tagHtml}
+                                </div>
+                                <div class="row talk-edit d-none">
+                                    <div class="col-xl-10 col-sm-12">
+                                        <textarea class="form-control" onfocus="this.select()">${talk}</textarea>
+                                    </div>
+                                    <div class="col-xl-2 col-sm-12 text-left text-sm-right">
+                                        <button class="btn btn-icon btn-rounded btn-primary talk-edit-btn"><i class="fa fa-paper-plane"></i></button>
+                                        <button class="btn btn-icon btn-rounded btn-secondary talk-del-btn"><i class="fa fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                                <p class="m-0 talk-area">
+                                    ${putCssOnTalk(talk)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        function getRight(name, talk, tag='') {
+            tagHtml = '<span>&nbsp;</span>';
+            if(tag != '') tagHtml = `<span class="text-small text-muted">${tag}</span>`;
+
+            let whoOption = ``;
+            $('#right_star').val().split(",").forEach((s)=>{
+                s = s.trim();
+                if(isNotEmpty(s)) whoOption += `<option value="${s.toLowerCase()}">${s}</option>`;
+            });
+            if(isEmpty(whoOption) && isNotEmpty(name)) {
+                whoOption = `<option value="${name.toLowerCase()}">${capitalize(name)}</option>`;
+            }
+
+            return `
+            <div class="chat-wrapper" draggable="true" ondragstart="drag(this, event)" ondrop="drop(this, event)" ondragover="allowDrop(event)">
+                <div class="mb-4 chat">
+                    <div class="row chat-right">
+                        <div class="col-10">
+                            <div class="message message-right flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    ${tagHtml}
+                                    <select class="form-control border-0 p-0 text-title text-right text-16 font-weight-600 w-50 talk-star" style="background-color: #ADC3EC;">
+                                        ${whoOption}
+                                    </select>
+                                </div>
+                                <div class="row talk-edit d-none">
+                                    <div class="col-xl-10 col-sm-12">
+                                        <textarea class="form-control" onfocus="this.select()">${talk}</textarea>
+                                    </div>
+                                    <div class="col-xl-2 col-sm-12 text-left text-sm-right">
+                                        <button class="btn btn-icon btn-rounded btn-primary talk-edit-btn"><i class="fa fa-paper-plane"></i></button>
+                                        <button class="btn btn-icon btn-rounded btn-secondary talk-del-btn"><i class="fa fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                                <div class="talk-area">${putCssOnTalk(talk)}</div>
+                            </div>
+                        </div>
+                        <div class="col-2 p-0">
+                            <img class="avatar-md rounded-circle ${name.toLowerCase()}" src="" onerror="this.src='./assets/img/user.png'"  />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        const tags = {
+                '$p' : '<span class="font-weight-600 text-purple">',
+                '$o' : '<span class="font-weight-600 text-orange">',
+                '$g' : '<span class="font-weight-600 text-green">',
+                '$/' : '</span>'
+            };
+
+        let isContain = function(talk) {
+            return Object.entries(tags).filter(tag => talk.indexOf(tag[0])>0).length > 0;
+        }
+
+        function putCssOnTalk(talk) {
+            while(isContain(talk) ) {
+                Object.entries(tags).forEach(tag => talk = talk.replace(tag[0], tag[1]));
+            }
+            return talk;
+        }
+
+        $(document).ready(function(){
+        }) 
+
+        var isEmpty = function(value){
+            if( value == "" || value == null || value == undefined || ( value != null && typeof value == "object" && !Object.keys(value).length ) ){
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        var isNotEmpty = function(value){
+            return !isEmpty(value);
+        };
+
+        var capitalize = function(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+
+</html>
