@@ -38,7 +38,7 @@
                             <option value="0">Right</option>
                         </select>
                     </div>
-                    <div class="col-xl-2 col-md-12  form-group align-self-end">
+                    <div class="col-xl-2 col-md-12  form-group align-self-end text-left text-sm-right">
                         <button class="btn btn-rounded btn-primary mr-2" id="start_over_btn">Start Over</button>
                         <button class="btn btn-rounded btn-primary mr-2" id="json_btn">Export JSON</button>
                     </div>
@@ -47,11 +47,15 @@
                     <label>Setting Pictures <i class="fa fa-retweet"></i></label>
                 </div>
                 <div class="row">
+                    <hr/>
                     <div class="col-xl-8 col-md-12  form-group">
-                        <textarea class="form-control" id="json_output" placeholder="JSON" cols="30" rows="3"></textarea>
+                        <textarea class="form-control" id="json_output" placeholder="JSON" cols="30" rows="3" onfocus="this.select()" ></textarea>
                     </div>
-                    <div class="col-xl-2 col-md-12  form-group align-self-end">
+                    <div class="col-xl-2 col-md-12  form-group align-self-end text-left text-sm-right">
                         <button class="btn btn-icon btn-rounded btn-success mr-2" id="load_json_btn">Load JSON</button>
+                        <button class="btn btn-icon btn-rounded btn-secondary" id="clear_json_btn"><i class="fa fa-power-off"></i></button>
+                        <button class="btn btn-icon btn-rounded btn-secondary" id="copy_json_btn"><i class="fa fa-copy"></i></button>
+                        <!-- <button class="btn btn-icon btn-rounded btn-info" id="cloud_json_btn"><i class="fa fa-cloud"></i></button> -->
                     </div>
                 </div>
             </div>
@@ -77,12 +81,6 @@
             prevStar = $(this).val();
             console.log('focus:'+prevStar);
         })
-        // .change(function(event){
-        //     console.log('change:'+$(this).val());
-        //     $(this).closest('.chat').find('img').removeClass(prevStar);
-        //     $(this).closest('.chat').find('img').addClass($(this).val());
-        //     // $(this).closest('.chat').find('img').attr('src', `./img/${$(folder).val()}/${$(this).val()}.png`);
-        // })
 
         $(document).on("change", ".talk-star", function(event) {
             console.log('change:'+$(this).val());
@@ -101,15 +99,28 @@
             }
         });
 
+        $(document).on("keypress", ".talk-edit-box", function(event){
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if(keycode == '13'){
+                $(this).closest('.talk-edit').find('.talk-edit-btn').click();
+            }
+        });
+
         $(document).on("click", ".talk-area", function(event) {
             $(this).prev('.talk-edit').removeClass('d-none');
+        });
+
+        $(document).on("click", ".talk-edit-alone-btn", function(event) {
+            let message = $(this).closest('.message');
+            message.find('.talk-area').html(putCssOnTalk(message.find('textarea').val().trim()));
+            message.find('.talk-edit').addClass('d-none');
         });
 
         $(document).on("click", ".talk-edit-btn", function(event) {
             let message = $(this).closest('.message');
             message.find('.talk-area').html(putCssOnTalk(message.find('textarea').val().trim()));
             message.find('.talk-edit').addClass('d-none');
-            addTalk()
+            addTalk();
         });
 
         function capitalize(word) {
@@ -220,6 +231,27 @@
 
         });
 
+        $(document).on("click", "#clear_json_btn", function(event) {
+            $("#json_output").val('');
+        });
+
+        $(document).on("click", "#copy_json_btn", function(event) {
+            // ref. w3school
+
+            /* Get the text field */
+            var copyText = document.getElementById("json_output");
+
+            /* Select the text field */
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+            /* Copy the text inside the text field */
+            navigator.clipboard.writeText(copyText.value);
+
+            /* Alert the copied text */
+            alert("Copied");
+        });
+
         let dragSource;
 
         function drag(element, event) {
@@ -241,7 +273,6 @@
         }
 
         function addTalk() {
-            console.log('add talk')
             let lastChat = $("#chat .chat").children().last();
             if(lastChat.hasClass('chat-left')) {
                 let rightStar = $("#right_star").val().split(",");
@@ -275,17 +306,18 @@
                         <div class="col-10">
                             <div class="message flex-grow-1">
                                 <div class="d-flex justify-content-between">
-                                    <select class="form-control border-0 p-0 text-title text-16 font-weight-600 w-50 talk-star">
+                                    <select class="form-control border-0 p-0 bg-chat text-title text-16 font-weight-600 w-50 talk-star">
                                         ${whoOption}
                                     </select>
                                     ${tagHtml}
                                 </div>
                                 <div class="row talk-edit d-none">
                                     <div class="col-xl-10 col-sm-12">
-                                        <textarea class="form-control" onfocus="this.select()">${talk}</textarea>
+                                        <textarea class="form-control talk-edit-box">${talk}</textarea>
                                     </div>
                                     <div class="col-xl-2 col-sm-12 text-left text-sm-right">
                                         <button class="btn btn-icon btn-rounded btn-primary talk-edit-btn"><i class="fa fa-paper-plane"></i></button>
+                                        <button class="btn btn-icon btn-rounded btn-primary talk-edit-alone-btn"><i class="fa fa-comment"></i></button>
                                         <button class="btn btn-icon btn-rounded btn-secondary talk-del-btn"><i class="fa fa-trash-alt"></i></button>
                                     </div>
                                 </div>
@@ -321,16 +353,17 @@
                             <div class="message message-right flex-grow-1">
                                 <div class="d-flex justify-content-between">
                                     ${tagHtml}
-                                    <select class="form-control border-0 p-0 text-title text-right text-16 font-weight-600 w-50 talk-star" dir="rtl"  style="background-color: #ADC3EC;">
+                                    <select class="form-control border-0 p-0 bg-chat text-title text-right text-16 font-weight-600 w-50 talk-star" dir="rtl" style="background-color: #ADC3EC;">
                                         ${whoOption}
                                     </select>
                                 </div>
                                 <div class="row talk-edit d-none">
                                     <div class="col-xl-10 col-sm-12">
-                                        <textarea class="form-control" onfocus="this.select()">${talk}</textarea>
+                                        <textarea class="form-control talk-edit-box" onfocus="this.select()">${talk}</textarea>
                                     </div>
                                     <div class="col-xl-2 col-sm-12 text-left text-sm-right">
                                         <button class="btn btn-icon btn-rounded btn-primary talk-edit-btn"><i class="fa fa-paper-plane"></i></button>
+                                        <button class="btn btn-icon btn-rounded btn-info talk-edit-alone-btn"><i class="fa fa-comment"></i></button>
                                         <button class="btn btn-icon btn-rounded btn-secondary talk-del-btn"><i class="fa fa-trash-alt"></i></button>
                                     </div>
                                 </div>
