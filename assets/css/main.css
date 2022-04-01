@@ -98,9 +98,10 @@ p {
       height: calc(100vh - 335px); }
       .chat-sidebar-container .chat-content-wrap .chat-content .message {
         position: relative;
-        background: #f8f9fa;
+        background: #dee2e6;
         border-radius: 10px;
-        padding: 1rem; }
+        padding: 1rem; 
+      }
         .chat-sidebar-container .chat-content-wrap .chat-content .message:before {
           position: absolute;
           content: "";
@@ -109,7 +110,7 @@ p {
           background: transparent;
           border-style: solid;
           border-width: 0 10px 10px 0px;
-          border-color: transparent transparent #f8f9fa transparent;
+          border-color: transparent transparent #dee2e6 transparent;
           transform: rotate(-135deg); }
   
   
@@ -155,7 +156,7 @@ p {
           cursor: pointer;
           transition: .15s all ease-in; }
           .chat-sidebar-container .chat-sidebar-wrap .contacts-scrollable .contact:hover {
-            background: #f8f9fa; }
+            background: #dee2e6; }
           .chat-sidebar-container .chat-sidebar-wrap .contacts-scrollable .contact:before {
             position: absolute;
             content: "";
@@ -544,6 +545,11 @@ fieldset:disabled a.btn {
 .bg-ligth-green {
   background:#cbdadf;
 }
+
+.bg-chat {
+  background: #dee2e6;
+}  
+
 /** card **/
 .card {
   border-radius: 10px;
