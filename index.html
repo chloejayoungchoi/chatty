@@ -314,7 +314,7 @@
                                 </div>
                                 <div class="row talk-edit ${talk==='new line'?'':'d-none'}">
                                     <div class="col-xl-10 col-sm-12">
-                                        <textarea class="form-control talk-edit-box">${talk}</textarea>
+                                        <textarea class="form-control talk-edit-box">${talk==='new line'?'':talk}</textarea>
                                     </div>
                                     <div class="col-xl-2 col-sm-12 text-left text-sm-right">
                                         <button class="btn btn-icon btn-rounded btn-primary talk-edit-btn"><i class="fa fa-paper-plane"></i></button>
@@ -360,7 +360,7 @@
                                 </div>
                                 <div class="row talk-edit ${talk==='new line'?'':'d-none'}">
                                     <div class="col-xl-10 col-sm-12">
-                                        <textarea class="form-control talk-edit-box" onfocus="this.select()">${talk}</textarea>
+                                        <textarea class="form-control talk-edit-box" onfocus="this.select()">${talk==='new line'?'':talk}</textarea>
                                     </div>
                                     <div class="col-xl-2 col-sm-12 text-left text-sm-right">
                                         <button class="btn btn-icon btn-rounded btn-primary talk-edit-btn"><i class="fa fa-paper-plane"></i></button>
